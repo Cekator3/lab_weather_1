@@ -78,7 +78,7 @@ class WeatherForecastGetter
         }
     }
 
-    Future<Position> _getUserGeolocation(WeatherForecastGetByGeolocationErrors errors) async
+    Future<Position?> _getUserGeolocation(WeatherForecastGetByGeolocationErrors errors) async
     {
         bool serviceEnabled;
         LocationPermission permission;
@@ -86,18 +86,27 @@ class WeatherForecastGetter
         // Test if location services are enabled.
         serviceEnabled = await Geolocator.isLocationServiceEnabled();
         if (! serviceEnabled)
+        {
             errors.add(WeatherForecastGetByGeolocationErrors.ERROR_GEOLOCATION_SERVICE_DISABLED);
+            return null;
+        }
 
         permission = await Geolocator.checkPermission();
         if (permission == LocationPermission.denied)
         {
             permission = await Geolocator.requestPermission();
             if (permission == LocationPermission.denied)
+            {
                 errors.add(WeatherForecastGetByGeolocationErrors.ERROR_GEOLOCATION_PERMISSION_DENIED);
+                return null;
+            }
         }
 
         if (permission == LocationPermission.deniedForever)
+        {
             errors.add(WeatherForecastGetByGeolocationErrors.ERROR_GEOLOCATION_PERMISSION_DENIED_FOREVER);
+            return null;
+        }
         return await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.low);
     }
 
@@ -116,8 +125,8 @@ class WeatherForecastGetter
             return [];
         }
 
-        Position userPosition = await _getUserGeolocation(errors);
-        if (errors.hasAny())
+        Position? userPosition = await _getUserGeolocation(errors);
+        if (errors.hasAny() || (userPosition == null))
             return [];
 
         http.Response response = await http.get(Uri.parse('$_baseUrl?lat=${userPosition.latitude}&lon=${userPosition.longitude}&&appid=$_apiKey'));

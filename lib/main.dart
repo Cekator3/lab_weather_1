@@ -69,6 +69,12 @@ class WeatherHomePageState extends State<WeatherHomePage>
                 showError('Информации по введённому населённому пункту не было найдено.');
             if (errors.isDeviceNotSupportGeolocation())
                 showError('Ваше устройство не поддерживает геолокацию. Автоматическое определение вашего местоположения невозможно.');
+            if (errors.isGeolocationPermissionDenied())
+                showError('Вы запретили использовать геолокацию. Автоматическое определение вашего местоположения невозможно.');
+            if (errors.isGeolocationPermissionDeniedForever())
+                showError('Вы навсегда запретили использовать геолокацию. Автоматическое определение вашего местоположения невозможно.');
+            if (errors.isGeolocationServiceDisabled())
+                showError('Включите геолокацию для автоматического определения вашего местоположения.');
 
             return;
         }
